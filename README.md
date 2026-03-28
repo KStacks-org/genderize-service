@@ -67,7 +67,7 @@ If the API rate limit is exceeded, the service will return a **503** status code
 }
 ```
 ### Can't determine gender
-If the service cannot determine the gender of the name, it will return a response with the gender set to None and a probability of 0.0.
+If the service cannot determine the gender of the name, it will return a response with the gender set to `null` and a probability of 0.0.
 ```json
 {
     "name": "UnknownName",
