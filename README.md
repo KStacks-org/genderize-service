@@ -34,7 +34,7 @@ fastapi dev app.main:app --reload
 ```bash
 gunicorn -w 2 \
          -k uvicorn.workers.UvicornWorker \
-         main:app \
+         app.main:app \
          --bind 0.0.0.0:8000 \
          --max-requests 1000 \
          --access-logfile - \
