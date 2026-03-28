@@ -23,6 +23,7 @@ pip install -r requirements.txt
 
 ## Environment Variables
 - `DATABASE_URL`: The URL for the database connection (e.g., `sqlite:///./genderize.db` or `postgresql://user:password`).
+- `GENDERIZE_API_KEY`: (Optional) Your API key for Genderize.io if you have one. This can help increase your rate limits.
 
 ## Usage
 1. Start the FastAPI server:
@@ -43,23 +44,26 @@ gunicorn -w 2 \
 
 2. Send a GET request to the endpoint with a name parameter:
 ```bash
-curl -X GET "http://localhost:8000/genderize?name=John"
+curl -X GET "http://localhost:8000/genderize?name=Yasser"
 ```
 
 ## Response Format
 The API will return a JSON response with the following format:
 ```json
 {
-    "name": "John",
+    "name": "Yasser",
     "gender": "male",
-    "probability": 0.99,
+    "probability": 1.0,
     "source": "api.genderize.io OR reviewed_data"
 }
 ```
+
+## Parameters
+- `name` (required): The name for which you want to determine the gender.
+- `country_id` (optional): The country code to improve accuracy (e.g., "US", "GB"). See [Genderize.io list of supported countries](https://genderize.io/our-data).
+
 ## Error Handling
 ### API Rate Limit Handling
-Sometimes, the external API may return an error due to rate limits. In such cases, the service will handle the error gracefully and inform the client about the rate limit status.
-
 If the API rate limit is exceeded, the service will return a **503** status code with a message indicating that the limit has been exceeded and when it will reset.
 ```json
 {
@@ -74,5 +78,13 @@ If the service cannot determine the gender of the name, it will return a respons
     "gender": null,
     "probability": 0.0,
     "source": "api.genderize.io"
+}
+```
+
+### Other errors
+For other errors (e.g., invalid input, server errors), the service will return an appropriate status code and error message in the response body.
+```json
+{
+    "error": "Detailed error message here."
 }
 ```
