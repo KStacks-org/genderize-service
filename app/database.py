@@ -1,4 +1,4 @@
-from .extentions import Base, SessionLocal, engine
+from .extensions import Base, SessionLocal, engine
 from .models import GenderizeResult
 from .enums import GenderEnum
 
