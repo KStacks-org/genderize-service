@@ -6,7 +6,7 @@ import os
 # import redis
 # import fakeredis
 
-APP_ENV = os.getenv("APP_ENV", "dev")
+# APP_ENV = os.getenv("APP_ENV", "dev")
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./test.db")
 # REDIS_URL = os.getenv("REDIS_URL", None)
 
