@@ -53,7 +53,7 @@ The API will return a JSON response with the following format:
     "name": "John",
     "gender": "male",
     "probability": 0.99,
-    "source": "api.genderize.io" or "reviewed_data"
+    "source": "api.genderize.io OR reviewed_data"
 }
 ```
 ## Error Handling
