@@ -1,6 +1,6 @@
 import time
 import requests
-from app.constants import API_URL, API_SOURCE_NAME, DEFAULT_DATA_SOURCE_NAME
+from app.constants import API_URL, API_SOURCE_NAME, GENDERIZE_API_KEY
 import app.database as db
 # from .extensions import redis_client
 
@@ -40,11 +40,18 @@ def _is_limit_exceeded() -> bool:
             print("Invalid reset time format in database. Resetting limit exceeded flag.")
     return False # not exceeded
 
-def genderize_by_api(name: str) -> dict:
+def genderize_by_api(name: str, country_id: str = None) -> dict:
     if _is_limit_exceeded():
         return _format_error_response(429, "API rate limit exceeded. Please try again later.")
+    
+    params = {"name": name}
+    if country_id:
+        params["country_id"] = country_id
+    if GENDERIZE_API_KEY:
+        params["apikey"] = GENDERIZE_API_KEY
 
-    response = requests.get(API_URL, params={"name": name})
+    response = requests.get(API_URL, params=params)
+
     headers = response.headers
     response_json = response.json()
 
@@ -84,7 +91,10 @@ def genderize(name: str) -> dict:
     api_result = genderize_by_api(name)
     if "error" in api_result:
         if api_result["status_code"] == 429:
-            return _format_error_response(503, "Service temporarily unavailable due to API rate limit. Please try again later.")
+            if _is_limit_exceeded():
+                return _format_error_response(503, "Service temporarily unavailable due to API rate limit. Please try again later.")
+            else:
+                return _format_error_response(500, "API rate limit status is inconsistent. Please try again later.")
         else:
             return api_result
     
