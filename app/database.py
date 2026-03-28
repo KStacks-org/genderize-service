@@ -1,3 +1,5 @@
+from app.models.Setting import Setting
+
 from .extensions import Base, SessionLocal, engine
 from .models import GenderizeResult
 from .enums import GenderEnum
@@ -60,7 +62,7 @@ def save_result(name: str, gender: str, probability: float, source: str):
     elif gender == "female":
         gender = GenderEnum.FEMALE
     else:
-        gender = GenderEnum.UNKNOWN
+        gender = None
 
     session = SessionLocal()
     try:
@@ -73,3 +75,30 @@ def save_result(name: str, gender: str, probability: float, source: str):
     finally:
         session.close()
         
+
+def add_or_update_settings(key: str, value: str):
+    session = SessionLocal()
+    try:
+        setting = session.query(Setting).filter_by(key=key).first()
+        if setting:
+            setting.value = value
+        else:
+            setting = Setting(key=key, value=value)
+            session.add(setting)
+        session.commit()
+    except Exception as e:
+        session.rollback()
+        print(f"Error saving setting: {e}")
+    finally:
+        session.close()
+
+def get_settings(key: str) -> str:
+    session = SessionLocal()
+    try:
+        setting = session.query(Setting).filter_by(key=key).first()
+        return setting.value if setting else None
+    except Exception as e:
+        print(f"Error fetching setting: {e}")
+        return None
+    finally:
+        session.close()

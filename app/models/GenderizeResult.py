@@ -1,5 +1,5 @@
-from app.database import Base
-from sqlalchemy import Column, Integer, String, Enum as SqlEnum
+from app.extensions import Base
+from sqlalchemy import Column, Integer, Float, String, Enum as SqlEnum
 from app.enums.GenderEnum import GenderEnum
 
 class GenderizeResult(Base):
@@ -7,14 +7,14 @@ class GenderizeResult(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(100), index=True, nullable=False)
-    gender = Column(SqlEnum(GenderEnum), nullable=False)
-    probability = Column(Integer, nullable=False) 
+    gender = Column(SqlEnum(GenderEnum), nullable=True)
+    probability = Column(Float, nullable=False, default=0.0)
     source = Column(String(100), nullable=False) # api or dataset
 
     def to_dict(self):
         return {
             "name": self.name,
-            "gender": self.gender.value,
+            "gender": self.gender.value if self.gender else None,
             "probability": self.probability,
             "source": self.source
         }
