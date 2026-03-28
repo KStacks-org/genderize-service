@@ -1,6 +1,10 @@
 from .extensions import Base, SessionLocal, engine
 from .models import GenderizeResult
 from .enums import GenderEnum
+import csv
+import os
+
+from .constants import DEFAULT_DATA_PATH, DEFAULT_DATA_SOURCE_NAME
 
 def init_db():
     Base.metadata.create_all(bind=engine)
@@ -10,22 +14,14 @@ def init_db():
         insert_default_data()
 
 def insert_default_data():
-    session = SessionLocal()
-    try:
-        sample_data = [
-            {"name": "John", "gender": GenderEnum.MALE, "probability": 0.99, "source": "dataset"},
-        ]
-        for data in sample_data:
-            existing_entry = session.query(GenderizeResult).filter_by(name=data["name"], source=data["source"]).first()
-            if not existing_entry:
-                new_entry = GenderizeResult(**data)
-                session.add(new_entry)
-        session.commit()
-    except Exception as e:
-        session.rollback()
-        print(f"Error inserting dataset data: {e}")
-    finally:
-        session.close()
+    if not os.path.exists(DEFAULT_DATA_PATH):
+        print("No default data file found. Skipping initialization.")
+        return
+    with open(DEFAULT_DATA_PATH, mode='r') as file:
+        reader = csv.DictReader(file)
+        for row in reader:
+            probability = float(row['probability']) if 'probability' in row and row['probability'] else 1.0
+            save_result(name=row['name'], gender=row['gender'], probability=probability, source=DEFAULT_DATA_SOURCE_NAME)
 
 def get_result_by_name(name: str) -> GenderizeResult:
     session = SessionLocal()
