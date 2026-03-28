@@ -83,12 +83,12 @@ def genderize_by_database(name: str) -> dict:
         return _format_response(**result.to_dict())
     return _format_error_response(status_code=404, error_message="Name not found in dataset.")
 
-def genderize(name: str) -> dict:
+def genderize(name: str, country_id: str = None) -> dict:
     database_result = genderize_by_database(name)
     if "error" not in database_result:
         return database_result
 
-    api_result = genderize_by_api(name)
+    api_result = genderize_by_api(name, country_id=country_id)
     if "error" in api_result:
         if api_result["status_code"] == 429:
             if _is_limit_exceeded():
