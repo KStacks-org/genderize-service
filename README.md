@@ -60,7 +60,7 @@ The API will return a JSON response with the following format:
 
 ## Parameters
 - `name` (required): The name for which you want to determine the gender.
-- `country_id` (optional): The country code to improve accuracy (e.g., "US", "GB"). See [Genderize.io list of supported countries](https://genderize.io/our-data).
+- `country_id` (optional): The country code to improve accuracy (e.g., "SA", "US"). See [Genderize.io list of supported countries](https://genderize.io/our-data).
 
 ## Error Handling
 ### API Rate Limit Handling
