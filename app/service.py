@@ -49,21 +49,24 @@ def genderize_by_api(name: str) -> dict:
     response_json = response.json()
 
     if response.status_code == 429:
-        reset_seconds = headers.get("x-rate-limit-reset", 3600)
+        rate_limit_remaining = headers.get("x-rate-limit-remaining")
+        rate_limit_reset = headers.get("x-rate-limit-reset", 3600)
         
-        # check if reset_seconds is correct type
-        if isinstance(reset_seconds, str) and reset_seconds.isdigit():
-            reset_seconds = int(reset_seconds)
-        elif not isinstance(reset_seconds, int):
-            reset_seconds = 3600
-        
-        reset_seconds = int(time.time() + reset_seconds)
-        _set_limit_exceeded(reset_seconds)
+        if rate_limit_remaining == "0":
+            # check if reset_seconds is correct type
+            if isinstance(rate_limit_reset, str) and rate_limit_reset.isdigit():
+                rate_limit_reset = int(rate_limit_reset)
+            elif not isinstance(rate_limit_reset, int):
+                rate_limit_reset = 3600
+            
+            rate_limit_reset = int(time.time() + rate_limit_reset)
+            _set_limit_exceeded(rate_limit_reset)
 
         return _format_error_response(429, "API rate limit exceeded. Please try again later.")
     
     elif response.status_code != 200:
-        return _format_error_response(response.status_code, f"API request failed with status code {response.status_code}")
+        print(f"External API request failed with status code {response.status_code}: {response.text}")
+        return _format_error_response(response.status_code, f"External API request failed with status code {response.status_code}")
 
     return _format_response(**response_json, source=API_SOURCE_NAME)
 
@@ -82,6 +85,8 @@ def genderize(name: str) -> dict:
     if "error" in api_result:
         if api_result["status_code"] == 429:
             return _format_error_response(503, "Service temporarily unavailable due to API rate limit. Please try again later.")
+        else:
+            return api_result
     
     db.save_result(
         name=api_result["name"],
