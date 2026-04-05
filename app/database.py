@@ -13,15 +13,16 @@ from .constants import DEFAULT_DATA_PATH, DEFAULT_DATA_SOURCE_NAME, LOAD_CSV
 def init_db():
     Base.metadata.create_all(bind=engine)
     if LOAD_CSV:
-        genderize_table = SessionLocal().query(GenderizeResult).first()
-        if not genderize_table:
-            print("Initializing database with sample data...")
-            insert_default_data()
+        # genderize_table = SessionLocal().query(GenderizeResult).first()
+        # if not genderize_table:
+        print("Loading default data from CSV...")
+        insert_default_data()
+        print("Default data loaded successfully.")
 
 def insert_default_data():
     default_data = get_seed_file_data()
     for row in default_data:
-        save_result(name=row.name, gender=row.gender, probability=row.probability, source=row.source)
+        save_result(name=row.name, gender=row.gender, probability=row.probability, source=row.source, echo=False)
 
 def get_seed_file_data() -> list[GenderizeResult]:
     if not os.path.exists(DEFAULT_DATA_PATH):
@@ -82,11 +83,12 @@ def update_result(name: str, gender: str, probability: float, source: str):
     finally:
         session.close()
 
-def save_result(name: str, gender: str, probability: float, source: str):
+def save_result(name: str, gender: str, probability: float, source: str, echo: bool = True):
     result = get_result_by_name(name)
     
     if result:
-        print(f"Result for {name} already exists in dataset. Skipping save.")
+        if echo:
+            print(f"Result for {name} already exists in dataset. Skipping save.")
         return
     
     if gender == "male":
