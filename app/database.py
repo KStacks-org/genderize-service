@@ -6,24 +6,56 @@ from .enums import GenderEnum
 import csv
 import os
 
-from .constants import DEFAULT_DATA_PATH, DEFAULT_DATA_SOURCE_NAME
+from .constants import DEFAULT_DATA_PATH, DEFAULT_DATA_SOURCE_NAME, LOAD_CSV
 
+
+# Database initialization
 def init_db():
     Base.metadata.create_all(bind=engine)
-    genderize_table = SessionLocal().query(GenderizeResult).first()
-    if not genderize_table:
-        print("Initializing database with sample data...")
-        insert_default_data()
+    if LOAD_CSV:
+        genderize_table = SessionLocal().query(GenderizeResult).first()
+        if not genderize_table:
+            print("Initializing database with sample data...")
+            insert_default_data()
 
 def insert_default_data():
+    default_data = get_seed_file_data()
+    for row in default_data:
+        save_result(name=row.name, gender=row.gender, probability=row.probability, source=row.source)
+
+def get_seed_file_data() -> list[GenderizeResult]:
     if not os.path.exists(DEFAULT_DATA_PATH):
-        print("No default data file found. Skipping initialization.")
-        return
+        print("No default data file found.")
+        return []
+    
+    seed_data = []
+
     with open(DEFAULT_DATA_PATH, mode='r') as file:
         reader = csv.DictReader(file)
+
         for row in reader:
-            probability = float(row['probability']) if 'probability' in row and row['probability'] else 1.0
-            save_result(name=row['name'], gender=row['gender'], probability=probability, source=DEFAULT_DATA_SOURCE_NAME)
+            name = row.get('name')
+            gender = row.get('gender')
+            probability = row.get('probability')
+            if name is None or name == '' or gender is None or gender == '' or probability is None or probability == '':
+                continue
+            
+            try:
+                probability = float(probability)
+            except ValueError:
+                continue
+
+
+            seed_data.append(GenderizeResult(
+                name=name,
+                gender=gender,
+                probability=probability,
+                source=DEFAULT_DATA_SOURCE_NAME
+            ))
+
+    return seed_data
+
+# Database operations
 
 def get_result_by_name(name: str) -> GenderizeResult:
     session = SessionLocal()
