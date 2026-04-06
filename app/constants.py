@@ -10,7 +10,7 @@ DEFAULT_DATA_SOURCE_NAME = "reviewed_dataset"
 DATABASE_URL = os.getenv("DATABASE_URL")
 
 if not DATABASE_URL:
-    db_engine = os.getenv("DB_ENGINE")
+    db_engine = os.getenv("DB_ENGINE", "").lower()
     db_name = os.getenv("DB_NAME", "genderize.db")
 
     match db_engine:
@@ -22,7 +22,7 @@ if not DATABASE_URL:
             db_host = os.getenv("DB_HOST", "localhost")
             db_port = os.getenv("DB_PORT", "5432")
             DATABASE_URL = f"{db_engine}://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}"
-        case None:
+        case "":
             raise ValueError("DB_ENGINE is not set in the environment variables. Please set it to either 'sqlite' or 'postgresql' or set DATABASE_URL.")
         case _:
             raise ValueError(f"Unsupported DB_ENGINE: {db_engine}")
