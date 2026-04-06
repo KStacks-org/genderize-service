@@ -7,7 +7,7 @@ GENDERIZE_API_KEY = os.getenv("GENDERIZE_API_KEY")
 DEFAULT_DATA_PATH = "./data/default_data.csv"
 DEFAULT_DATA_SOURCE_NAME = "reviewed_dataset"
 
-DATABASE_URL = os.getenv("DATABASE_URL")
+DATABASE_URL = os.getenv("DB_URL")
 
 if not DATABASE_URL:
     db_engine = os.getenv("DB_ENGINE", "").lower()
