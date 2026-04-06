@@ -3,12 +3,12 @@ name: Build and Push to GHCR
 on:
   push:
     branches:
-      - main
+      - production
     tags:
       - "v*"
   pull_request:
     branches:
-      - main
+      - production
   workflow_dispatch:
 
 env:
