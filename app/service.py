@@ -3,6 +3,7 @@ import requests
 from app.constants import API_URL, API_SOURCE_NAME, GENDERIZE_API_KEY
 import app.database as db
 # from .extensions import redis_client
+from sqlalchemy import text
 
 def _format_response(name: str, gender: str="Unknown", probability: float=0.0, source: str="Unknown", **kwargs) -> dict:
     return {
@@ -105,3 +106,10 @@ def genderize(name: str, country_id: str = None) -> dict:
         source=api_result["source"]
     )
     return api_result
+
+
+def check_database_connection():
+    try:
+        db.SessionLocal().execute(text("SELECT 1"))
+    except Exception as e:
+        raise ConnectionError(f"Database connection failed: {str(e)}")
