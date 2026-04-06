@@ -19,7 +19,6 @@ async def liveness():
 @app.get("/health/readiness")
 async def readiness():
     try:
-        # Perform a simple database query to check if the database connection is healthy
         service.check_database_connection()
     except Exception as e:
         return JSONResponse(status_code=503, content={"status": "unready", "error": str(e)})
