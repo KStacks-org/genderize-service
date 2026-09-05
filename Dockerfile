@@ -3,7 +3,7 @@ FROM python:3.12-slim
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
 
-RUN addgroup --system appgroup && adduser --system --ingroup appgroup appuser
+RUN addgroup --system appgroup && adduser --system --home /home/appuser --ingroup appgroup appuser
 
 WORKDIR /app
 
@@ -24,4 +24,4 @@ USER appuser
 
 EXPOSE 64843
 
-CMD ["gunicorn", "-w", "2", "-k", "uvicorn.workers.UvicornWorker", "app.main:app", "--bind", "0.0.0.0:64843", "--max-requests", "1000", "--access-logfile", "-", "--error-logfile", "-"]
+CMD ["gunicorn", "-w", "2", "-k", "uvicorn.workers.UvicornWorker", "app.main:app", "--bind", "0.0.0.0:64843", "--worker-tmp-dir", "/dev/shm", "--max-requests", "1000", "--access-logfile", "-", "--error-logfile", "-"]
