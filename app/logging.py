@@ -9,10 +9,10 @@ logger = logging.getLogger(__name__)
 def setup_logging(app):
     @app.middleware("http")
     async def log_requests(request: Request, call_next):
-        if request.url.path in LOGGING_EXCLUDED_PATHS:
+        if any(request.url.path.startswith(excluded_path) for excluded_path in LOGGING_EXCLUDED_PATHS):
             return await call_next(request)
 
-        logging.info(f"Request: {request.client.host} \"{request.method} {request.url}\"")
+        # logging.info(f"Request: {request.client.host} \"{request.method} {request.url}\"")
         response = await call_next(request)
         response_status = HTTPStatus(response.status_code)
 
