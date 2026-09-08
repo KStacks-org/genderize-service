@@ -5,6 +5,9 @@ dev.db
 # vs code
 .vscode/
 
+# apple
+.DS_Store
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]

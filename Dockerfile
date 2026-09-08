@@ -24,4 +24,4 @@ USER appuser
 
 EXPOSE 64843
 
-CMD ["gunicorn", "-w", "2", "-k", "uvicorn.workers.UvicornWorker", "app.main:app", "--bind", "0.0.0.0:64843", "--worker-tmp-dir", "/dev/shm", "--max-requests", "1000", "--access-logfile", "-", "--error-logfile", "-"]
+CMD ["gunicorn", "-w", "2", "-k", "uvicorn.workers.UvicornWorker", "app.main:app", "--bind", "0.0.0.0:64843", "--worker-tmp-dir", "/dev/shm", "--max-requests", "1000", "--log-level", "critical", "--access-logfile", "-", "--error-logfile", "-"]

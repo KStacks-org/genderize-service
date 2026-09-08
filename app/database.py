@@ -5,8 +5,8 @@ from .models import GenderizeResult
 from .enums import GenderEnum
 import csv
 import os
-
 from .constants import DEFAULT_DATA_PATH, DEFAULT_DATA_SOURCE_NAME, LOAD_CSV
+from .logging import logger
 
 
 # Database initialization
@@ -15,9 +15,9 @@ def init_db():
     if LOAD_CSV:
         # genderize_table = SessionLocal().query(GenderizeResult).first()
         # if not genderize_table:
-        print("Loading default data from CSV...")
+        logger.info("Loading default data from CSV...")
         insert_default_data()
-        print("Default data loaded successfully.")
+        logger.info("Default data loaded successfully.")
 
 def insert_default_data():
     default_data = get_seed_file_data()
@@ -26,7 +26,7 @@ def insert_default_data():
 
 def get_seed_file_data() -> list[GenderizeResult]:
     if not os.path.exists(DEFAULT_DATA_PATH):
-        print("No default data file found.")
+        logger.warning("No default data file found.")
         return []
     
     seed_data = []
@@ -64,7 +64,7 @@ def get_result_by_name(name: str) -> GenderizeResult:
         result = session.query(GenderizeResult).filter_by(name=name).first()
         return result
     except Exception as e:
-        print(f"Error fetching result: {e}")
+        logger.error(f"Error fetching result: {e}")
         return None
     finally:
         session.close()
@@ -79,7 +79,7 @@ def update_result(name: str, gender: str, probability: float, source: str):
             session.commit()
     except Exception as e:
         session.rollback()
-        print(f"Error updating result: {e}")
+        logger.error(f"Error updating result: {e}")
     finally:
         session.close()
 
@@ -88,7 +88,7 @@ def save_result(name: str, gender: str, probability: float, source: str, echo: b
     
     if result:
         if echo:
-            print(f"Result for {name} already exists in dataset. Skipping save.")
+            logger.info(f"Result for {name} already exists in dataset. Skipping save.")
         return
     
     if gender == "male":
@@ -105,7 +105,7 @@ def save_result(name: str, gender: str, probability: float, source: str, echo: b
         session.commit()
     except Exception as e:
         session.rollback()
-        print(f"Error saving result: {e}")
+        logger.error(f"Error saving result: {e}")
     finally:
         session.close()
         
@@ -122,7 +122,7 @@ def add_or_update_settings(key: str, value: str):
         session.commit()
     except Exception as e:
         session.rollback()
-        print(f"Error saving setting: {e}")
+        logger.error(f"Error saving setting: {e}")
     finally:
         session.close()
 
@@ -132,7 +132,7 @@ def get_settings(key: str) -> str:
         setting = session.query(Setting).filter_by(key=key).first()
         return setting.value if setting else None
     except Exception as e:
-        print(f"Error fetching setting: {e}")
+        logger.error(f"Error fetching setting: {e}")
         return None
     finally:
         session.close()

@@ -1,13 +1,17 @@
 from fastapi.responses import JSONResponse
 from app import service
 from . import app
+from .logging import logger
 
 @app.get("/genderize")
 async def genderize(name: str, country_id: str = None):
     name = name.strip().lower()
+    logger.info(f"Received request for name: {name}, country_id: {country_id}")
     result = service.genderize(name, country_id=country_id)
     if "error" in result:
+        logger.error(f"Error processing request for name: {name}, country_id: {country_id}. Error: {result['error']}")
         return JSONResponse(status_code=result.get("status_code", 500), content=result)
+    logger.info(f"Returning successful response for name: {name}, country_id: {country_id}: {result}")
     return JSONResponse(content=result)
 
 

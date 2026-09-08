@@ -28,3 +28,9 @@ if not DATABASE_URL:
             raise ValueError(f"Unsupported DB_ENGINE: {db_engine}")
 
 LOAD_CSV = os.getenv("LOAD_CSV", "true").lower() == "true"
+
+LOGGING_EXCLUDED_PATHS = [
+    "/health",
+    "/metrics"
+]
+LOGGING_LEVEL = os.getenv("LOGGING_LEVEL", "INFO").upper()
