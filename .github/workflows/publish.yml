@@ -1,0 +1,31 @@
+name: Build and publish
+
+on:
+  push:
+    branches: [dev, prod]
+    tags: ['v*']
+  pull_request:
+    branches: [dev, prod]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    permissions:
+      contents: read
+      packages: write
+    uses: KStacks-org/infra/.github/workflows/python.yml@808003049ed99d49579e78b3e97db7736c904175
+
+  deploy:
+    needs: build
+    uses: KStacks-org/infra/.github/workflows/deploy.yml@808003049ed99d49579e78b3e97db7736c904175
+    with:
+      image-tag: ${{ needs.build.outputs.image-tag }}
+    secrets:
+      INFRA_PAT: ${{ secrets.INFRA_PAT }}
